@@ -1,0 +1,22 @@
+{% if messages %}
+    <ul>
+        {% for message in messages %}
+            <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}
+<form method="POST" action="">
+    {% csrf_token %}
+
+    <p>
+        <label for="massarID">Massar </label>
+        <input id="massarID" type="text" name="massarID">
+    </p>
+
+    <p>
+        <label for="password">password</label>
+        <input id="password" type="password" name="password">
+    </p>
+
+    <button type="submit">login</button>
+</form>
