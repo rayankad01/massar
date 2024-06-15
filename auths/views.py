@@ -1,4 +1,4 @@
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render
 from django.contrib import messages
 import requests
@@ -73,26 +73,26 @@ def login_user(request):
         if "@taalim.ma" not in massarID:
             massarID += "@taalim.ma"
         password = request.POST.get("password")
-        user = authenticate(request, massarID=massarID, password=password)
+        user = User.objects.filter(massarID=massarID).first()
         if user is not None or verify_form(massarID, password):
-            user = authenticate(request, massarID=massarID, password=password)
+
+
             if user is not None:
+                username = user.username
+                user = authenticate(request, username=username, password=password)
                 login(request, user)
+                print("done")
                 messages.success(request, 'sucess')
             else:
-                if not User.objects.filter(username=massarID).exists():
-                    name = get_name(massarID, password)
-                    first_name = name[0]
-                    last_name = name[1]
-                    username = f"{first_name} {last_name}"
-                    if username.replace(" ", "") == "":
-                        username = massarID.replace("@taalim.ma", "")
-                    user = User.objects.create_user(username=username, first_name= first_name, last_name=last_name, massarID=massarID, password=password)
-                    login(request, user)
-                    messages.success(request, 'sucess')
-
-                else:
-                    messages.error(request, 'Invalid password.')
+                name = get_name(massarID, password)
+                first_name = name[0]
+                last_name = name[1]
+                username = f"{first_name} {last_name}"
+                if username.replace(" ", "") == "":
+                    username = massarID.replace("@taalim.ma", "")
+                user = User.objects.create_user(username=username, first_name= first_name, last_name=last_name, massarID=massarID, password=password)
+                login(request, user)
+                messages.success(request, 'sucess')
 
         else:
             messages.error(request, 'Invalid MassarID or password')
