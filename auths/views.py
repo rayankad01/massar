@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render
 from django.contrib import messages
@@ -67,6 +69,43 @@ def get_name(massarID, passsword):
 
     return(first_name, last_name)
 
+def get_class(massarID, passsword):
+    session = requests.Session()
+
+    url_formulaire = 'https://massarservice.men.gov.ma/moutamadris/Account'
+
+    response_formulaire = session.get(url_formulaire)
+    soup = BeautifulSoup(response_formulaire.content, 'html.parser')
+
+    token = soup.find('input', {'name': '__RequestVerificationToken'})['value']
+
+    url_login = 'https://massarservice.men.gov.ma/moutamadris/Account'
+    login_data = {
+        '__RequestVerificationToken': token,
+        'UserName': massarID,
+        'Password': passsword
+    }
+    response_login = session.post(url_login, data=login_data)
+
+    if response_login.status_code == 200 and "اسم المستخدم أو كلمة المرور غير صالحة" not in response_login.content.decode('utf-8'):
+        url_api_change_langage = 'https://massarservice.men.gov.ma/moutamadris/General/SetCulture?culture=fr'
+        session.get(url_api_change_langage)
+        url_api = 'https://massarservice.men.gov.ma/moutamadris/TuteurEleves/GetBulletins'
+
+        api_data = {
+            "Annee": datetime.now().year if 9 <= datetime.now().month <= 12 else datetime.now().year-1  ,
+            "IdSession":"1" if 9 <= datetime.now().month <= 12 or 1 <= datetime.now().month < 2 else "2"
+        }
+        print(api_data)
+
+        response_api = session.post(url_api, data=api_data)
+        html_content = response_api.content
+        soup = BeautifulSoup(html_content, 'html.parser')
+        dt_classe = soup.find('dt', string='Niveau')
+        if dt_classe:
+            classe = dt_classe.find_next('dd').text
+            return classe
+
 def login_user(request):
     if request.method == "POST":
         massarID = request.POST.get("massarID")
@@ -78,11 +117,18 @@ def login_user(request):
 
 
             if user is not None:
+                classe = get_class(massarID, password)
                 username = user.username
                 user = authenticate(request, username=username, password=password)
-                login(request, user)
-                print("done")
-                messages.success(request, 'Vous avez été connécté avec succès')
+                if user:
+                    user.classe = classe
+                    print(classe)
+                    user.save()
+                    login(request, user)
+                    print("done")
+                    messages.success(request, 'Vous avez été connécté avec succès')
+                else:
+                    messages.error(request, 'MassarID ou mot de passe invalide, veuillez réessayer')
             else:
                 name = get_name(massarID, password)
                 first_name = name[0]
@@ -90,8 +136,12 @@ def login_user(request):
                 username = f"{first_name} {last_name}"
                 if username.replace(" ", "") == "":
                     username = massarID.replace("@taalim.ma", "")
-                user = User.objects.create_user(username=username, first_name= first_name, last_name=last_name, massarID=massarID, password=password)
+                classe = get_class(massarID, password)
+                print(classe)
+                user = User.objects.create_user(username=username, first_name= first_name, last_name=last_name, massarID=massarID, classe=classe, password=password)
                 login(request, user)
+                classe = get_class(massarID, password)
+                user.classe = classe
                 messages.success(request, 'Le compte MassarPlus a été créé avec succès')
 
         else:
