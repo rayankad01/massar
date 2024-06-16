@@ -3,16 +3,18 @@
 Display Score
 {% endblock title %}
 {% block body %}
-<div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+<div class="relative overflow-x-auto shadow-md sm:rounded-lg mx-auto body">
     <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-
       <tbody>
-
         {% for pack in scores %}
+
         <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
             {% for score in pack %}
-
+            {% if forloop.first %}
+                <th class="px-6 py-3"> {% if score %}{{ score }}{% endif %}</th>
+            {% else %}
                 <td class="px-6 py-4"> {% if score %}{{ score }}{% endif %}</td>
+            {% endif %}
 
             {% endfor %}
         </tr>

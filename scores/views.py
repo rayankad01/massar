@@ -55,14 +55,9 @@ def get_scores(massarID, password):
         notes[subject] = (first_exam, second_exam, third_exam, fourth_exam, activities)
     notes_c = [[], ]
     for matiere in notes:
-        notes_c[0].append(matiere)
-        liste = notes[matiere]
-        for i in range(len(liste)):
-            if len(notes_c) - 1 < i + 1:
-                notes_c.append([liste[i]])
-            else:
-                notes_c[i + 1].append(liste[i])
-
+        notes_i = [matiere] + list(notes[matiere])
+        notes_c.append(notes_i)
+    print(notes_c)
     return notes_c
 
 @login_required(login_url="auths:login")
