@@ -82,7 +82,7 @@ def login_user(request):
                 user = authenticate(request, username=username, password=password)
                 login(request, user)
                 print("done")
-                messages.success(request, 'sucess')
+                messages.success(request, 'Vous avez été connécté avec succès')
             else:
                 name = get_name(massarID, password)
                 first_name = name[0]
@@ -92,8 +92,8 @@ def login_user(request):
                     username = massarID.replace("@taalim.ma", "")
                 user = User.objects.create_user(username=username, first_name= first_name, last_name=last_name, massarID=massarID, password=password)
                 login(request, user)
-                messages.success(request, 'sucess')
+                messages.success(request, 'Le compte MassarPlus a été créé avec succès')
 
         else:
-            messages.error(request, 'Invalid MassarID or password')
+            messages.error(request, 'MassarID ou mot de passe invalide, veuillez réessayer')
     return render(request, 'auths/login.html')

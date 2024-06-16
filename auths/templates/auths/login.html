@@ -3,14 +3,23 @@
 Get started
 {% endblock title %}
 {% block body %}
-{% if messages %}
+
+<form method="POST" action="" class="max-w-md mx-auto">
+    {% if messages %}
     <ul>
         {% for message in messages %}
-            <li>{{ message }}</li>
+        {% if message.tags == "error" %}
+            <div class="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
+                <span class="font-bold">Erreur !</span> {{ message }}
+            </div>
+        {% elif message.tags == "success" %}
+            <div class="p-4 mb-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400" role="alert">
+              <span class="font-bold">Succès !</span> {{ message }}
+            </div>
+        {% endif %}
         {% endfor %}
     </ul>
 {% endif %}
-<form method="POST" action="" class="max-w-sm mx-auto">
     {% csrf_token %}
     <div class="mb-5">
 
