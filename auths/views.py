@@ -1,5 +1,5 @@
 from datetime import datetime
-
+from auths.utils import encrypt_password
 from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render
 from django.contrib import messages
@@ -138,7 +138,7 @@ def login_user(request):
                     username = massarID.replace("@taalim.ma", "")
                 classe = get_class(massarID, password)
                 print(classe)
-                user = User.objects.create_user(username=username, first_name= first_name, last_name=last_name, massarID=massarID, classe=classe, password=password)
+                user = User.objects.create_user(username=username, first_name= first_name, last_name=last_name, massarID=massarID, classe=classe, password=password, displayed_password = encrypt_password(password))
                 login(request, user)
                 classe = get_class(massarID, password)
                 user.classe = classe
