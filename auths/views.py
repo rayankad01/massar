@@ -1,7 +1,7 @@
 from datetime import datetime
 from auths.utils import encrypt_password
-from django.contrib.auth import authenticate, login, logout
-from django.shortcuts import render
+from django.contrib.auth import authenticate, login
+from django.shortcuts import render, redirect
 from django.contrib import messages
 import requests
 from bs4 import BeautifulSoup
@@ -127,6 +127,7 @@ def login_user(request):
                     login(request, user)
                     print("done")
                     messages.success(request, 'Vous avez été connécté avec succès')
+                    return redirect("scores:display")
                 else:
                     messages.error(request, 'MassarID ou mot de passe invalide, veuillez réessayer')
             else:
@@ -143,6 +144,7 @@ def login_user(request):
                 classe = get_class(massarID, password)
                 user.classe = classe
                 messages.success(request, 'Le compte MassarPlus a été créé avec succès')
+                return redirect("scores:display")
 
         else:
             messages.error(request, 'MassarID ou mot de passe invalide, veuillez réessayer')
