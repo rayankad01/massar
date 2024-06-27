@@ -35,8 +35,8 @@ def get_scores(massarID, password, method=0):
     session.get(url)
     url_api = 'https://massarservice.men.gov.ma/moutamadris/TuteurEleves/GetBulletins'
     api_data = {
-        "Annee": datetime.now().year if 9 <= datetime.now().month <= 12 else datetime.now().year - 1,
-        "IdSession": "1" if 9 <= datetime.now().month <= 12 or 1 <= datetime.now().month < 2 else "1"
+        "Annee": datetime.now().year  if 9 <= datetime.now().month <= 12 else datetime.now().year - 1,
+        "IdSession": "1" if 9 <= datetime.now().month <= 12 or 1 <= datetime.now().month < 2 else "2"
     }
     response_api = session.post(url_api, data=api_data)
     html_content = response_api.content
@@ -94,22 +94,20 @@ def count_final_score(scores, coefs):
         note_final += final
     note_final = note_final / N
     return note_final
+from django.http import JsonResponse
+
 @login_required(login_url="auths:login")
 def count_score(request):
     user = request.user
     scores = get_scores(user.massarID, decrypt_password(user.displayed_password))[0]
-    subjects = []
-    for pack in scores:
-        subjects.append(pack[0])
+    subjects = [pack[0] for pack in scores]
 
     if request.method == "POST":
-        coefs = {}
-        for subject in subjects:
-            coefs[subject] = int(request.POST.get(subject))
-
+        coefs = {subject: int(request.POST.get(subject)) for subject in subjects}
         scores = get_scores(massarID=request.user.massarID, password=decrypt_password(request.user.displayed_password), method=1)
         final_score = count_final_score(scores, coefs)
         print(final_score)
 
+        return HttpResponse(f"""<div id="final-score" class="text-base leading-relaxed text-gray-500 dark:text-gray-400"><p>Votre moyenne générale actuelle est : <span class="md:text-blue-700 font-semibold">{round(final_score, 2)}</span></p> </div>""")
 
-    return render(request, "scores/count_score.html", context={"subjects":subjects})
+    return render(request, "scores/count_score.html", context={"subjects": subjects})
