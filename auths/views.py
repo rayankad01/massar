@@ -1,6 +1,6 @@
 from datetime import datetime
 from auths.utils import encrypt_password
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render, redirect
 from django.contrib import messages
 import requests
@@ -76,8 +76,8 @@ def get_class(massarID, passsword):
 
     response_formulaire = session.get(url_formulaire)
     soup = BeautifulSoup(response_formulaire.content, 'html.parser')
-
     token = soup.find('input', {'name': '__RequestVerificationToken'})['value']
+
 
     url_login = 'https://massarservice.men.gov.ma/moutamadris/Account'
     login_data = {
@@ -107,6 +107,8 @@ def get_class(massarID, passsword):
             return classe
 
 def login_user(request):
+    if request.user.is_authenticated:
+        return redirect("scores:display")
     if request.method == "POST":
         massarID = request.POST.get("massarID")
         if "@taalim.ma" not in massarID:
@@ -125,8 +127,6 @@ def login_user(request):
                     print(classe)
                     user.save()
                     login(request, user)
-                    print("done")
-                    messages.success(request, 'Vous avez été connécté avec succès')
                     return redirect("scores:display")
                 else:
                     messages.error(request, 'MassarID ou mot de passe invalide, veuillez réessayer')
@@ -143,9 +143,12 @@ def login_user(request):
                 login(request, user)
                 classe = get_class(massarID, password)
                 user.classe = classe
-                messages.success(request, 'Le compte MassarPlus a été créé avec succès')
                 return redirect("scores:display")
 
         else:
             messages.error(request, 'MassarID ou mot de passe invalide, veuillez réessayer')
     return render(request, 'auths/login.html')
+
+def logout_user(request):
+    logout(request)
+    return redirect("auths:login")

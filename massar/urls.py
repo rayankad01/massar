@@ -16,11 +16,15 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from massar.views import index
 
 urlpatterns = [
     path("__reload__/", include("django_browser_reload.urls")),
     path('admin/', admin.site.urls),
     path('auths/',include('auths.urls'), name="auths"),
     path('scores/',include('scores.urls'), name="scores"),
+    path('info/',include('info.urls'), name="info"),
+    path('', index)
+
 
 ]

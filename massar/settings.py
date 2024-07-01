@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'django_browser_reload',
     'auths',
     'scores',
+    'info',
 ]
 
 MIDDLEWARE = [

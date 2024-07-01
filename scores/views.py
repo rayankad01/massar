@@ -55,6 +55,7 @@ def get_scores(massarID, password, method=0):
         activities = float(columns[5].text.strip().replace(',', '.')) if columns[5].text.strip() else None
         notes[subject] = (first_exam, second_exam, third_exam, fourth_exam, activities)
 
+    print(notes)
     if method == 0:
         notes_c = []
         for matiere in notes:
@@ -94,7 +95,6 @@ def count_final_score(scores, coefs):
         note_final += final
     note_final = note_final / N
     return note_final
-from django.http import JsonResponse
 
 @login_required(login_url="auths:login")
 def count_score(request):

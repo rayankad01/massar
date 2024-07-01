@@ -4,4 +4,5 @@ app_name = "scores"
 urlpatterns = [
     path('display/', display_scores, name="display"),
     path('count/', count_score, name="count"),
+
 ]
