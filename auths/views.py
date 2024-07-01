@@ -110,7 +110,12 @@ def login_user(request):
     if request.user.is_authenticated:
         return redirect("scores:display")
     if request.method == "POST":
+
         massarID = request.POST.get("massarID")
+        accept_policy = request.POST.get("accept-policy")
+        if not accept_policy:
+            messages.error(request, 'Veuillez acceptez notre politique de confidentialité')
+            return redirect("auths:login")
         if "@taalim.ma" not in massarID:
             massarID += "@taalim.ma"
         password = request.POST.get("password")
